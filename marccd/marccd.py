@@ -1,7 +1,7 @@
 import os
 import struct
 import numpy as np
-from io import mccd
+from .io import mccd
 
 class MarCCD:
     """
