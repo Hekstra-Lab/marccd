@@ -32,7 +32,7 @@ class MarCCD:
         elif isinstance(data, np.ndarray):
             self.image = data
             
-        return self
+        return
 
     def read(self, path_to_image):
         """
