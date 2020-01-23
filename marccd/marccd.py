@@ -26,7 +26,7 @@ class MarCCD:
         
         # Initialize from file path
         elif isinstance(data, str):
-            mccd.read(self, data)
+            self.read(data)
             
         # Initialize from np.ndarray
         elif isinstance(data, np.ndarray):
