@@ -1,1 +1,1 @@
-from marccd import MarCCD
+from .marccd import MarCCD
