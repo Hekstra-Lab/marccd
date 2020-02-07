@@ -1,6 +1,10 @@
 # marccd  
 Read, write, and manipulate diffraction images that use the MarCCD format
 
+This Python library provides:
+- A `MarCCD` class for representing diffraction images and their header information
+- IO methods that support reading and writing MarCCD format diffraction images
+
 ## Installation
 
 I have not yet made this package available on PyPI. Until then, `marccd` can be
