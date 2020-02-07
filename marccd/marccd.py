@@ -19,7 +19,7 @@ class MarCCD:
             MarCCD image to read or np.ndarray of image
         """
         # Initialize empty MarCCD object
-        if not data:
+        if data is None:
             self._tiffheader = None
             self._mccdheader = None
             self.image       = None
@@ -30,7 +30,14 @@ class MarCCD:
             
         # Initialize from np.ndarray
         elif isinstance(data, np.ndarray):
+            self._tiffheader = None
+            self._mccdheader = None
             self.image = data
+
+        else:
+            raise ValueError(f"Argument is of type: {type(data)}. "
+                             f"Expected argument of type str or "
+                             f"np.ndarray.")
             
         return
 
