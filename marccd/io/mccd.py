@@ -13,8 +13,8 @@ def read(path_to_image):
 
     Returns
     -------
-    (tiffheader, mccdheader, image) : tuple
-        Returns tuple containing the two headers and an ndarray of the 
+    (mccdheader, image) : tuple
+        Returns tuple containing the mccd header and an ndarray of the 
         image
     """
     
@@ -33,7 +33,7 @@ def read(path_to_image):
                 byte2int.unpack(mccdheader[84:88])[0])
         image = np.frombuffer(mccd.read(), dtype=np.int16).reshape(dims)
 
-    return tiffheader, mccdheader, image
+    return mccdheader, image
 
 def write(marccd, outfile):
     """
@@ -49,10 +49,7 @@ def write(marccd, outfile):
     with open(outfile, "wb") as out:
 
         # Write TIFF header
-        if marccd._tiffheader:
-            out.write(marccd._tiffheader)
-        else:
-            out.write(_getTIFFHeader())
+        out.write(_getTIFFHeader())
 
         # Write MarCCD header
         if marccd._mccdheader is not None:
