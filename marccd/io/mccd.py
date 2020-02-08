@@ -31,7 +31,6 @@ def read(path_to_image):
         byte2int = struct.Struct("<I")
         dims = (byte2int.unpack(mccdheader[80:84])[0],
                 byte2int.unpack(mccdheader[84:88])[0])
-        print(dims)
         image = np.frombuffer(mccd.read(), dtype=np.int16).reshape(dims)
 
     return mccdheader, image
