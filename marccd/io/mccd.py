@@ -31,6 +31,7 @@ def read(path_to_image):
         byte2int = struct.Struct("<I")
         dims = (byte2int.unpack(mccdheader[80:84])[0],
                 byte2int.unpack(mccdheader[84:88])[0])
+        print(dims)
         image = np.frombuffer(mccd.read(), dtype=np.int16).reshape(dims)
 
     return mccdheader, image
@@ -89,6 +90,6 @@ def _getTIFFHeader():
                   b'\x05\x00\x01\x00\x00\x00\xb2\x00\x00\x00(\x01\x03\x00'
                   b'\x01\x00\x00\x00\x03\x00\x00\x00\x96\x87\x04\x00\x01'
                   b'\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x80\x96'
-                  b'\x98\x00\x18Z\x01\x00\x80\x96\x98\x00\x18Z\x01'
-                  b'\x00'*839)
+                  b'\x98\x00\x18Z\x01\x00\x80\x96\x98\x00\x18Z\x01')
+    tiffheader += b'\x00'*839
     return tiffheader
