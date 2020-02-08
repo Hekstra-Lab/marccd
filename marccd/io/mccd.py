@@ -53,11 +53,12 @@ def write(marccd, outfile):
 
         # Write MarCCD header
         if marccd._mccdheader is not None:
-            header = list(marccd._mccdheader)
-            int2byte = struct.Struct('<I')
-            header[80:84] = int2byte.pack(marccd.image.shape[0])
-            header[84:88] = int2byte.pack(marccd.image.shape[1])
-            out.write(bytes(header))
+            # header = list(marccd._mccdheader)
+            # int2byte = struct.Struct('<I')
+            # header[80:84] = int2byte.pack(marccd.image.shape[0])
+            # header[84:88] = int2byte.pack(marccd.image.shape[1])
+            # out.write(bytes(header))
+            out.write(marccd._mccdheader)
         else:
             raise AttributeError("_mccdheader attribute was not found")
 
