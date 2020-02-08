@@ -52,11 +52,11 @@ def write(marccd, outfile):
         if marccd._tiffheader:
             out.write(marccd._tiffheader)
         else:
-            out.write(b'\x00'*1024)
+            out.write(_getTIFFHeader())
 
         # Write MarCCD header
-        if marccd._mccdheader:
-            header = list(self._mccdheader)
+        if marccd._mccdheader is not None:
+            header = list(marccd._mccdheader)
             int2byte = struct.Struct('<I')
             header[80:84] = int2byte.pack(marccd.image.shape[0])
             header[84:88] = int2byte.pack(marccd.image.shape[1])
@@ -69,4 +69,28 @@ def write(marccd, outfile):
             
     return
 
-    
+def _getTIFFHeader():
+    """
+    Get the default 1024 byte TIFF header for MCCD images
+
+    Returns
+    -------
+    tiffheader : bytes
+        1024 byte TIFF header
+    """
+    tiffheader = (b'II*\x00\x08\x00\x00\x00\r\x00\x00\x01\x04\x00\x01'
+                  b'\x00\x00\x00\x00\x0f\x00\x00\x01\x01\x04\x00\x01\x00'
+                  b'\x00\x00\x00\x0f\x00\x00\x02\x01\x03\x00\x01\x00\x00'
+                  b'\x00\x10\x00\x00\x00\x03\x01\x03\x00\x01\x00\x00\x00'
+                  b'\x01\x00\x00\x00\x06\x01\x03\x00\x01\x00\x00\x00\x01'
+                  b'\x00\x00\x00\x11\x01\x04\x00\x01\x00\x00\x00\x00\x10'
+                  b'\x00\x00\x12\x01\x03\x00\x01\x00\x00\x00\x01\x00\x00'
+                  b'\x00\x16\x01\x04\x00\x01\x00\x00\x00\x00\x0f\x00\x00'
+                  b'\x17\x01\x04\x00\x01\x00\x00\x00\x00\x00\xc2\x01\x1a'
+                  b'\x01\x05\x00\x01\x00\x00\x00\xaa\x00\x00\x00\x1b\x01'
+                  b'\x05\x00\x01\x00\x00\x00\xb2\x00\x00\x00(\x01\x03\x00'
+                  b'\x01\x00\x00\x00\x03\x00\x00\x00\x96\x87\x04\x00\x01'
+                  b'\x00\x00\x00\x00\x04\x00\x00\x00\x00\x00\x00\x80\x96'
+                  b'\x98\x00\x18Z\x01\x00\x80\x96\x98\x00\x18Z\x01'
+                  b'\x00'*839)
+    return tiffheader
