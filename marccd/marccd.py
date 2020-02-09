@@ -1,24 +1,35 @@
 import os
 import struct
 import numpy as np
-from .io import mccd
+from ._io import mccd
 
 class MarCCD:
     """
     Read, write, and manipulate images that use the MarCCD format
+
+    Attributes
+    ----------
+    image : ndarray
+        MarCCD image stored as a numpy array
+    name : str
+        Name of image
+    dimensions : (int, int)
+        Dimensions of MarCCD image in pixels
+    distance : float
+        Crystal-to-detector distance in millimeters
+    center : (float, float)
+        Beam center in pixels
+    pixelsize : (float, float)
+        Pixel size in microns
+    wavelength : float
+        Wavelength of incident X-ray in angstroms
     """
 
-    def __init__(self, data=None, name=None):
+    def __init__(self, data=None, name=None, distance=None,
+                 center=None, pixelsize=None, wavelength=None):
         """
         Initialize MarCCD from file or np.ndarray. If no data argument 
-        is given, an empty MarCCD object is returned
-
-        Attributes
-        ----------
-        image : ndarray
-            MarCCD image stored as a numpy array
-        name : str
-            Name of image
+        is given, an empty MarCCD object is returned.
 
         Parameters
         ----------
@@ -27,6 +38,14 @@ class MarCCD:
         name : str
             Name of image. If a filename is provided as data argument,
             name defaults to the filename.
+        distance : float
+            Crystal-to-detector distance in millimeters
+        center : (float, float)
+            Beam center in pixels
+        pixelsize : (float, float)
+            Pixel size in microns
+        wavelength : float
+            Wavelength of incident X-ray in angstroms
         """
         # Set name if provided
         self.name = name
@@ -49,9 +68,16 @@ class MarCCD:
             raise ValueError(f"Argument is of type: {type(data)}. "
                              f"Expected argument of type str or "
                              f"np.ndarray.")
-            
+
         return
 
+    @property
+    def dimensions(self):
+        if self.image is None:
+            return (0, 0)
+        else:
+            return self.image.shape
+    
     def read(self, path_to_image):
         """
         Read MCCD image from file, populating fields in MarCCD
