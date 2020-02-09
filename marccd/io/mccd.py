@@ -13,9 +13,9 @@ def read(path_to_image):
 
     Returns
     -------
-    (mccdheader, image) : tuple
-        Returns tuple containing the mccd header and an ndarray of the 
-        image
+    (image, metadata, mccdheader) : tuple
+        Returns tuple containing the ndarray of the image, experimental 
+        metadata and the mccdheader
     """
     
     if not os.path.exists(path_to_image):
@@ -27,13 +27,14 @@ def read(path_to_image):
         tiffheader = mccd.read(1024)
         mccdheader = mccd.read(3072)
 
+        # Parse experimental metadata
+        metadata = _parseMCCDHeader(mccdheader)
+        
         # Read image
-        byte2int = struct.Struct("<I")
-        dims = (byte2int.unpack(mccdheader[80:84])[0],
-                byte2int.unpack(mccdheader[84:88])[0])
-        image = np.frombuffer(mccd.read(), dtype=np.int16).reshape(dims)
+        image = np.frombuffer(mccd.read(), dtype=np.int16)
+        image = image.reshape(metadata["dimensions"])
 
-    return mccdheader, image
+    return image, metadata, mccdheader
 
 def write(marccd, outfile):
     """
@@ -67,6 +68,29 @@ def write(marccd, outfile):
             
     return
 
+def _parseMCCDHeader(header):
+    """
+    Parse experimental metadata from MCCD header. Byte-offsets of 
+    experimental parameters are based on this `reference 
+    <http://www.sb.fsu.edu/~xray/Manuals/marCCD165header.html>`_
+
+    Parameters
+    ----------
+    header : bytes
+        MCCD header
+    """
+    byte2int = struct.Struct("<I")
+    metadata = {}
+    metadata["dimensions"] = (byte2int.unpack(header[80:84])[0],
+                              byte2int.unpack(header[84:88])[0])
+    metadata["distance"] = float(byte2int.unpack(header[640:644])[0])/1e3
+    metadata["center"] = (float(byte2int.unpack(header[644:648])[0])/1e3,
+                          float(byte2int.unpack(header[648:652])[0])/1e3)
+    metadata["pixelsize"] = (float(byte2int.unpack(header[772:776])[0])/1e3,
+                             float(byte2int.unpack(header[776:780])[0])/1e3)
+    metadata["wavelength"] = float(byte2int.unpack(header[908:912])[0])/1e5
+    return metadata
+    
 def _getTIFFHeader():
     """
     Get the default 1024 byte TIFF header for MCCD images

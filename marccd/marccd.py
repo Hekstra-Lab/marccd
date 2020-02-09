@@ -33,7 +33,7 @@ class MarCCD:
         
         # Initialize empty MarCCD object
         if data is None:
-            self._mccdheader = None
+            self._mccdheader = b'\x00'*3072
             self.image       = None
             
         # Initialize from file path
@@ -42,7 +42,7 @@ class MarCCD:
             
         # Initialize from np.ndarray
         elif isinstance(data, np.ndarray):
-            self._mccdheader = None
+            self._mccdheader = b'\x00'*3072
             self.image = data
 
         else:
@@ -61,9 +61,10 @@ class MarCCD:
         path_to_image : str
             Path to MCCD image to read
         """
-        mccdheader, image = mccd.read(path_to_image)
+        image, metadata, mccdheader = mccd.read(path_to_image)
         self._mccdheader = mccdheader
         self.image = image
+        self.metadata = metadata
         self.name = os.path.basename(path_to_image)
         return
         
