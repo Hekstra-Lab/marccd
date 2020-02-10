@@ -117,3 +117,12 @@ class TestMarCCD(unittest.TestCase):
             mccd = marccd.MarCCD(randimage)
         
         return
+
+    def test_dimensions(self):
+        """Unit tests for MarCCD dimensions attribute"""
+
+        for dims in [(500, 500), (0, 0), (1000, 1300)]:
+            mccd = marccd.MarCCD(np.zeros(dims, dtype=np.uint16))
+            self.assertEqual(dims, mccd.dimensions)
+
+        return
