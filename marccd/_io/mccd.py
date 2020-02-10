@@ -19,7 +19,7 @@ def read(path_to_image):
     """
     
     if not os.path.exists(path_to_image):
-        raise ValueError(f"{path} does not exist")
+        raise ValueError(f"{path_to_image} does not exist")
 
     with open(path_to_image, 'rb') as mccd:
 
