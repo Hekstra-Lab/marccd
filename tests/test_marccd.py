@@ -126,3 +126,19 @@ class TestMarCCD(unittest.TestCase):
             self.assertEqual(dims, mccd.dimensions)
 
         return
+
+    def test_readwrite(self):
+        """Unit test for MarCCD reading and writing"""
+        import filecmp, os
+        
+        # Test round trip leaves MCCD image unchanged
+        mccd = marccd.MarCCD(self.testImage)
+        datadir = dirname(self.testImage)
+        temp = join(datadir, "temp.mccd")
+        mccd.write(temp)
+        self.assertTrue(filecmp.cmp(self.testImage, temp))
+        os.remove(temp)
+
+        return
+        
+        
