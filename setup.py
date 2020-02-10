@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-import marccd
 
 __version__ = 0.2
 
