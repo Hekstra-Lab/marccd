@@ -34,6 +34,10 @@ def read(path_to_image):
         image = np.frombuffer(mccd.read(), dtype=np.int16)
         image = image.reshape(metadata["dimensions"])
 
+    # Remove dimensions from metadata because it will be determined from
+    # the image shape
+    metadata.pop("dimensions")
+        
     return image, metadata, mccdheader
 
 def write(marccd, outfile):
@@ -54,12 +58,7 @@ def write(marccd, outfile):
 
         # Write MarCCD header
         if marccd._mccdheader is not None:
-            # header = list(marccd._mccdheader)
-            # int2byte = struct.Struct('<I')
-            # header[80:84] = int2byte.pack(marccd.image.shape[0])
-            # header[84:88] = int2byte.pack(marccd.image.shape[1])
-            # out.write(bytes(header))
-            out.write(marccd._mccdheader)
+            out.write(_writeMCCDHeader(marccd))
         else:
             raise AttributeError("_mccdheader attribute was not found")
 
@@ -90,6 +89,51 @@ def _parseMCCDHeader(header):
                              float(byte2int.unpack(header[776:780])[0])/1e3)
     metadata["wavelength"] = float(byte2int.unpack(header[908:912])[0])/1e5
     return metadata
+
+def _writeMCCDHeader(marccd):
+    """
+    Write the MCCD header using the experimental metadata from the MarCCD
+    object.
+
+    Parameters
+    ----------
+    marccd : MarCCD
+        MarCCD object from which to get experimental metadata
+    """
+    # Set up header for indexing 
+    header = list(marccd._mccdheader)
+    int2byte = struct.Struct('<I')
+
+    # Write image dimensions
+    header[80:84] = int2byte.pack(marccd.dimensions[0])
+    header[84:88] = int2byte.pack(marccd.dimensions[1])
+
+    # Write detector distance (two places)
+    if marccd.distance is not None:
+        dist = int(marccd.distance*1e3)
+        header[640:644] = int2byte.pack(dist)
+        header[696:700] = int2byte.pack(dist)
+
+    # Write beam center
+    if marccd.center is not None:
+        centerx = int(marccd.center[0]*1e3)
+        centery = int(marccd.center[1]*1e3)
+        header[644:648] = int2byte.pack(centerx)
+        header[648:652] = int2byte.pack(centery)    
+        
+    # Write pixel size
+    if marccd.pixelsize is not None:
+        pixelx = int(marccd.pixelsize[0]*1e3)
+        pixely = int(marccd.pixelsize[1]*1e3)
+        header[772:776] = int2byte.pack(pixelx)
+        header[776:780] = int2byte.pack(pixely)
+
+    # Write X-ray wavelength
+    if marccd.wavelength is not None:
+        wavelength = int(np.round(marccd.wavelength*1e5))
+        header[908:912] = int2byte.pack(wavelength)
+    
+    return bytes(header)
     
 def _getTIFFHeader():
     """

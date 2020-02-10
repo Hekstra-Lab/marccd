@@ -31,6 +31,13 @@ class MarCCD:
         Initialize MarCCD from file or np.ndarray. If no data argument 
         is given, an empty MarCCD object is returned.
 
+        Notes
+        -----
+        If arguments are given in addition to an MCCD image, priority
+        is given to the provided argument values. The class attributes 
+        will be set using the argument values instead of those indicated
+        in the MCCD header. 
+
         Parameters
         ----------
         data : str or ndarray
@@ -46,28 +53,40 @@ class MarCCD:
             Pixel size in microns
         wavelength : float
             Wavelength of incident X-ray in angstroms
-        """
-        # Set name if provided
-        self.name = name
-        
-        # Initialize empty MarCCD object
-        if data is None:
-            self._mccdheader = b'\x00'*3072
-            self.image       = None
-            
+        """        
+        # Initialize all attributes in empty MarCCD object
+        self.image       = np.empty((0, 0))
+        self.name        = None
+        self.distance    = None
+        self.center      = None
+        self.pixelsize   = None
+        self.wavelength  = None
+        self._mccdheader = b'\x00'*3072
+
+        # Initialize from np.ndarray
+        if isinstance(data, np.ndarray):
+            self.image = data
+
         # Initialize from file path
         elif isinstance(data, str):
             self.read(data)
             
-        # Initialize from np.ndarray
-        elif isinstance(data, np.ndarray):
-            self._mccdheader = b'\x00'*3072
-            self.image = data
-
-        else:
+        elif data is not None:
             raise ValueError(f"Argument is of type: {type(data)}. "
                              f"Expected argument of type str or "
                              f"np.ndarray.")
+
+        # Set attributes if values are provided
+        if name is not None:
+            self.name = name
+        if distance is not None:
+            self.distance = distance
+        if center is not None:
+            self.center = center
+        if pixelsize is not None:
+            self.pixelsize = pixelsize
+        if wavelength is not None:
+            self.wavelength = wavelength
 
         return
 
@@ -87,11 +106,18 @@ class MarCCD:
         path_to_image : str
             Path to MCCD image to read
         """
+        # Read image
         image, metadata, mccdheader = mccd.read(path_to_image)
+
+        # Set standard attributes
+        self.name = os.path.basename(path_to_image)
         self._mccdheader = mccdheader
         self.image = image
-        self.metadata = metadata
-        self.name = os.path.basename(path_to_image)
+
+        # Set experimental metadata attributes
+        for key in metadata:
+            setattr(self, key, metadata[key])
+
         return
         
     def write(self, outfile):
