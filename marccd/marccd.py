@@ -92,10 +92,7 @@ class MarCCD:
 
     @property
     def dimensions(self):
-        if self.image is None:
-            return (0, 0)
-        else:
-            return self.image.shape
+        return self.image.shape
     
     def read(self, path_to_image):
         """
