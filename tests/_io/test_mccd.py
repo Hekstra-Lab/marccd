@@ -3,6 +3,7 @@ from marccd._io import mccd
 import unittest
 import numpy as np
 from os.path import join, abspath, dirname
+import os
 
 class TestIOMCCD(unittest.TestCase):
 
@@ -26,6 +27,26 @@ class TestIOMCCD(unittest.TestCase):
         self.assertFalse("dimensions" in metadata)
         self.assertEqual(3072, len(mccdheader))
 
+        return
+
+    def test_write(self):
+        """Unit tests for mccd.write()"""
+
+        mccdobj = marccd.MarCCD(self.testImage)
+        datadir = dirname(self.testImage)
+        temp = join(datadir, "temp.mccd")
+        
+        # _mccdheader attribute exists
+        mccd.write(mccdobj, temp)
+        self.assertTrue(os.path.exists(temp))
+        os.remove(temp)
+
+        # _mccdheader attribute does not exist
+        mccdobj._mccdheader = None
+        with self.assertRaises(AttributeError):
+            mccd.write(mccdobj, temp)
+        os.remove(temp)
+            
         return
     
     def test_getTIFFHeader(self):
