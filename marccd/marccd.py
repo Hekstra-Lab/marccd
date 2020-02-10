@@ -1,5 +1,6 @@
 import os
 import struct
+import warnings
 import numpy as np
 from ._io import mccd
 
@@ -42,7 +43,8 @@ class MarCCD:
         ----------
         data : str or ndarray
             MarCCD image to read or np.ndarray of image. If np.ndarray,
-            dtype should be np.uint16.
+            dtype should be np.uint16; if not, they will be coerced to 
+            np.uint16 and a warning will be generated.
         name : str
             Name of image. If a filename is provided as data argument,
             name defaults to the filename.
@@ -66,7 +68,13 @@ class MarCCD:
 
         # Initialize from np.ndarray
         if isinstance(data, np.ndarray):
-            self.image = data.astype(np.uint16)
+            if data.dtype.type is not np.uint16:
+                warnings.warn(f"Data ndarray is of type {data.dtype.type}. "
+                              f"This will be coerced to type np.uint16.",
+                              UserWarning)
+                self.image = data.astype(np.uint16)
+            else:
+                self.image = data
 
         # Initialize from file path
         elif isinstance(data, str):
