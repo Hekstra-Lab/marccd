@@ -31,7 +31,7 @@ def read(path_to_image):
         metadata = _parseMCCDHeader(mccdheader)
         
         # Read image
-        image = np.frombuffer(mccd.read(), dtype=np.int16)
+        image = np.frombuffer(mccd.read(), dtype=np.uint16)
         image = image.reshape(metadata["dimensions"])
 
     # Remove dimensions from metadata because it will be determined from
