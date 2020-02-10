@@ -1,5 +1,6 @@
 # marccd  
-![Build](https://github.com/Hekstra-Lab/marccd/workflows/Build/badge.svg)
+![Build](https://github.com/Hekstra-Lab/marccd/workflows/Build/badge.svg)  
+
 Read, write, and manipulate diffraction images that use the MarCCD format
 
 This Python library provides:
