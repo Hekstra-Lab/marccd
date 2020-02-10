@@ -1,6 +1,6 @@
 # marccd  
 ![Build](https://github.com/Hekstra-Lab/marccd/workflows/Build/badge.svg)
-![codecov](https://codecov.io/gh/Hekstra-Lab/marccd/branch/master/graph/badge.svg)  
+[![codecov](https://codecov.io/gh/Hekstra-Lab/marccd/branch/master/graph/badge.svg)](https://codecov.io/gh/Hekstra-Lab/marccd)  
 
 Read, write, and manipulate diffraction images that use the MarCCD format
 
