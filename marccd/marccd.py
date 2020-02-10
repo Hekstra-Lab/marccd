@@ -41,7 +41,8 @@ class MarCCD:
         Parameters
         ----------
         data : str or ndarray
-            MarCCD image to read or np.ndarray of image
+            MarCCD image to read or np.ndarray of image. If np.ndarray,
+            dtype should be np.uint16.
         name : str
             Name of image. If a filename is provided as data argument,
             name defaults to the filename.
@@ -65,7 +66,7 @@ class MarCCD:
 
         # Initialize from np.ndarray
         if isinstance(data, np.ndarray):
-            self.image = data
+            self.image = data.astype(np.uint16)
 
         # Initialize from file path
         elif isinstance(data, str):
