@@ -10,4 +10,6 @@ setup(
     install_requires=[
         "numpy >= 1.6",
     ],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 )
