@@ -1,6 +1,5 @@
 import marccd
 import unittest
-import pytest
 import numpy as np
 from os.path import join, abspath, dirname, basename
 
