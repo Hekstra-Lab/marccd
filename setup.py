@@ -1,9 +1,11 @@
 from setuptools import setup, find_packages
 import marccd
 
+__version__ = 0.2
+
 setup(
     name='marccd',
-    version=marccd._version,
+    version=__version__,
     author='Jack B. Greisman',
     author_email='greisman@g.harvard.edu',
     packages=find_packages(),
