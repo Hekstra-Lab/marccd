@@ -18,3 +18,21 @@ git clone https://github.com/Hekstra-Lab/marccd.git
 cd mdtools
 python setup.py install
 ```
+
+## Quick Start
+
+Here is a short example of reading and plotting a diffraction image:
+
+```python
+import matplotlib.pyplot as plt
+from marccd import MarCCD
+
+# Read image
+mccd = MarCCD("tests/data/e074a_off1_011.mccd")
+
+# Plot image and mark beam center
+plt.imshow(mccd.image, cmap="gray_r", vmin=10, vmax=50)
+plt.plot(*mccd.center, 'rx')
+plt.axis("off")
+```
+<img src="https://github.com/Hekstra-Lab/marccd/blob/master/tests/data/image.png" width="800" class="center">
