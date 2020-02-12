@@ -15,7 +15,7 @@ installed locally by cloning the repository and using the included `setup.py`:
 
 ```
 git clone https://github.com/Hekstra-Lab/marccd.git
-cd mdtools
+cd marccd
 python setup.py install
 ```
 
