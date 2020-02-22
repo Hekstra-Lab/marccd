@@ -126,6 +126,19 @@ class TestMarCCD(unittest.TestCase):
 
         return
 
+    def test_repr(self):
+        """Unit tests for Marccd.__repr__() method"""
+        mccd = marccd.MarCCD()
+        dims = mccd.dimensions
+        self.assertTrue(f"<marccd.MarCCD with {dims[0]}x{dims[1]} pixels" in str(mccd))
+
+        randimage = np.random.randint(0, 100, (500, 500), np.uint16)
+        mccd = marccd.MarCCD(randimage)
+        dims = mccd.dimensions
+        self.assertTrue(f"<marccd.MarCCD with {dims[0]}x{dims[1]} pixels" in str(mccd))
+        
+        return
+        
     def test_readwrite(self):
         """Unit test for MarCCD reading and writing"""
         import filecmp, os
