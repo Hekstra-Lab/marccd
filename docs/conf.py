@@ -22,8 +22,16 @@ project = 'marccd'
 copyright = '2020, Jack B. Greisman'
 author = 'Jack B. Greisman'
 
+def getVersionNumber():
+    with open("../setup.py", "r") as infile:
+        lines = infile.readlines()
+        line = [ l for l in lines if "__version__" in l][0]
+        version = line.rstrip("\n").split()[-1]
+    return version
+
+
 # The full version, including alpha/beta/rc tags
-release = '0.2'
+release = getVersionNumber()
 
 # -- General configuration ---------------------------------------------------
 
