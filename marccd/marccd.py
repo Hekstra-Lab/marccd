@@ -6,24 +6,35 @@ from ._io import mccd
 
 class MarCCD:
     """
-    Read, write, and manipulate images that use the MarCCD format
+    Container for diffraction images that use MarCCD format.
 
-    Attributes
-    ----------
-    image : ndarray
-        MarCCD image stored as a numpy array
-    name : str
-        Name of image
-    dimensions : (int, int)
-        Dimensions of MarCCD image in pixels
-    distance : float
-        Crystal-to-detector distance in millimeters
-    center : (float, float)
-        Beam center in pixels
-    pixelsize : (float, float)
-        Pixel size in microns
-    wavelength : float
-        Wavelength of incident X-ray in angstroms
+    The diffraction image is represented by a numpy ndarray
+    that can facilitate analyzing and manipulating the underlying
+    data. Experimental metadata can also be stored/changed using the 
+    object's attributes. 
+
+    MarCCD objects can be initialized by reading an image from disk, or
+    by directly providing a numpy ndarray. 
+
+    Examples
+    --------
+    >>> # Initialize empty MarCCD object
+    >>> from marccd import MarCCD
+    >>> MarCCD()
+    <marccd.MarCCD with 0x0 pixels at 0x4635073552>
+
+    >>> # Initialize MarCCD from image file and print X-ray wavelength
+    >>> img = MarCCD("image.mccd")
+    >>> print(img)
+    <marccd.MarCCD with 3840x3840 pixels at 0x4688828304>
+    >>> print(img.wavelength)
+    1.0264
+
+    >>> # Initialize MarCCD from numpy array
+    >>> import numpy as np
+    >>> image = np.random.randint(0, 100, size=(1000, 1000), dtype=np.uint16)
+    >>> MarCCD(image)
+    <marccd.MarCCD with 1000x1000 pixels at 0x4646535440>
     """
 
     def __init__(self, data=None, name=None, distance=None,
@@ -100,8 +111,122 @@ class MarCCD:
         return
 
     @property
+    def image(self):
+        """
+        MarCCD image as a numpy array
+
+        Returns
+        -------
+        image : ndarray
+            The MarCCD image as a numpy array
+        """
+        return self.__image
+
+    @image.setter
+    def image(self, value):
+        """Sets the MarCCD image to provided numpy array"""
+        self.__image = value
+
+    @property
+    def name(self):
+        """
+        Name of image
+
+        Returns
+        -------
+        name : str
+            The name of the image
+        """
+        return self.__name
+
+    @name.setter
+    def name(self, value):
+        """Sets the name of image to provided value"""
+        self.__name = value
+    
+    @property
     def dimensions(self):
-        return self.image.shape
+        """
+        Dimensions of MarCCD image in pixels
+
+        Returns
+        -------
+        dimensions : (int, int)
+            The dimensions of the MarCCD image in pixels
+        """
+        return self.__image.shape
+
+    @property
+    def distance(self):
+        """
+        Crystal-to-detector distance in millimeters
+        
+        Returns
+        -------
+        distance : float
+            The crystal-to-detector distance in mm
+        """
+        return self.__distance
+
+    @distance.setter
+    def distance(self, value):
+        """Sets the crystal-to-detector distance to provided value"""
+        self.__distance = value
+
+    @property
+    def center(self):
+        """
+        Beam center in pixels
+
+        Returns
+        -------
+        center : (float, float)
+            The beam center in pixels
+        """
+        return self.__center
+    
+    @center.setter
+    def center(self, value):
+        """Sets the beam center to provided value"""
+        self.__center = value
+
+    @property
+    def pixelsize(self):
+        """
+        Pixel size in microns
+
+        Returns
+        -------
+        pixelsize : (float, float)
+            The pixel size in microns
+        """
+        return self.__pixelsize
+
+    @pixelsize.setter
+    def pixelsize(self, value):
+        """Sets the pixel size to provided value"""
+        self.__pixelsize = value
+
+    @property
+    def wavelength(self):
+        """
+        Wavelength of incident X-ray in angstroms
+
+        Returns
+        -------
+        wavelength : float
+            The wavelength of incident X-ray source in angstroms
+        """
+        return self.__wavelength
+
+    @wavelength.setter
+    def wavelength(self, value):
+        """Sets the wavelength to provided value"""
+        self.__wavelength = value
+        
+    def __repr__(self):
+        dims = self.dimensions
+        return f"<marccd.MarCCD with {dims[0]}x{dims[1]} pixels at 0x{id(self)}>"
     
     def read(self, path_to_image):
         """
@@ -136,3 +261,4 @@ class MarCCD:
             File to which MarCCD image will be written
         """
         return mccd.write(self, outfile)
+
