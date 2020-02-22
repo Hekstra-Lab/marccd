@@ -36,3 +36,7 @@ plt.plot(*mccd.center, 'rx')
 plt.axis("off")
 ```
 <img src="https://github.com/Hekstra-Lab/marccd/blob/master/tests/data/image.png" width="800" class="center">
+
+## Documentation
+
+For more details, please see the [marccd project page](https://hekstra-lab.github.io/marccd/)
