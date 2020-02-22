@@ -35,6 +35,31 @@ class MarCCD:
     >>> image = np.random.randint(0, 100, size=(1000, 1000), dtype=np.uint16)
     >>> MarCCD(image)
     <marccd.MarCCD with 1000x1000 pixels at 0x4646535440>
+
+    Parameters
+    ----------
+    data : str or ndarray
+        MarCCD image to read or np.ndarray of image. If np.ndarray,
+        dtype should be np.uint16; if not, they will be coerced to 
+        np.uint16 and a warning will be generated.
+    name : str
+        Name of image. If a filename is provided as data argument,
+        name defaults to the filename.
+    distance : float
+        Crystal-to-detector distance in millimeters
+    center : (float, float)
+        Beam center in pixels
+    pixelsize : (float, float)
+        Pixel size in microns
+    wavelength : float
+        Wavelength of incident X-ray in angstroms
+
+    Notes
+    -----
+    If arguments are given in addition to an MCCD image, priority
+    is given to the provided argument values. The class attributes 
+    will be set using the argument values instead of those indicated
+    in the MCCD header. 
     """
 
     def __init__(self, data=None, name=None, distance=None,
@@ -42,31 +67,6 @@ class MarCCD:
         """
         Initialize MarCCD from file or np.ndarray. If no data argument 
         is given, an empty MarCCD object is returned.
-
-        Notes
-        -----
-        If arguments are given in addition to an MCCD image, priority
-        is given to the provided argument values. The class attributes 
-        will be set using the argument values instead of those indicated
-        in the MCCD header. 
-
-        Parameters
-        ----------
-        data : str or ndarray
-            MarCCD image to read or np.ndarray of image. If np.ndarray,
-            dtype should be np.uint16; if not, they will be coerced to 
-            np.uint16 and a warning will be generated.
-        name : str
-            Name of image. If a filename is provided as data argument,
-            name defaults to the filename.
-        distance : float
-            Crystal-to-detector distance in millimeters
-        center : (float, float)
-            Beam center in pixels
-        pixelsize : (float, float)
-            Pixel size in microns
-        wavelength : float
-            Wavelength of incident X-ray in angstroms
         """        
         # Initialize all attributes in empty MarCCD object
         self.image       = np.empty((0, 0))
