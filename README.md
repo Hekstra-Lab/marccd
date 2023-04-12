@@ -12,13 +12,9 @@ This Python library provides:
 
 ## Installation
 
-I have not yet made this package available on PyPI. Until then, `marccd` can be
-installed locally by cloning the repository and using the included `setup.py`:
-
+I have not yet made this package available on PyPI. However, you can still install it with `pip`:
 ```
-git clone https://github.com/Hekstra-Lab/marccd.git
-cd marccd
-python setup.py install
+pip install git+https://github.com/Hekstra-Lab/marccd.git
 ```
 
 ## Quick Start
