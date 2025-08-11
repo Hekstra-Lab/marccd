@@ -17,9 +17,9 @@ def read(path_to_image):
 
     Returns
     -------
-    (image, metadata, mccdheader) : tuple
-        Returns tuple containing the ndarray of the image, experimental
-        metadata and the mccdheader
+    (image, parsed_header, metadata, mccdheader) : tuple
+        Returns tuple containing the ndarray of the image, a dictionary containing
+        the fully parsed header, experimental metadata, and the mccdheader
     """
 
     if not os.path.exists(path_to_image):
@@ -83,31 +83,27 @@ def _parseMCCDHeader(header):
     metadata = {}
 
     for name, fieldtype in FrameHeader._fields_:
-        info = getattr(FrameHeader, name)
-        offset = info.offset
-        size = info.size
-        raw = header[offset : offset + size]
+        field = getattr(FrameHeader, name)
+        offset = field.offset
+        size = field.size
+        raw = header[offset : offset + size]  # index into corresponding bytes
 
         # Parse based on type
         if issubclass(fieldtype, ctypes.Array) and issubclass(
             fieldtype._type_, ctypes.c_char
         ):
-            # C-style string
             val = raw.rstrip(b"\x00").decode("ascii", "ignore")
         elif issubclass(fieldtype, ctypes.Array):
-            # Array of numbers (e.g. c_uint32 * 2)
             basetype = fieldtype._type_
             count = fieldtype._length_
-            val = list(ctypes.cast(raw, ctypes.POINTER(basetype * count)).contents)
+            buf = ctypes.create_string_buffer(raw)
+            val = list(ctypes.cast(buf, ctypes.POINTER(basetype * count)).contents)
         elif issubclass(fieldtype, ctypes.c_uint32):
             val = int.from_bytes(raw, "little")
-            # print('3')
         elif issubclass(fieldtype, ctypes.c_int32):
             val = int.from_bytes(raw, "little", signed=True)
-            # print('4')
         else:
-            val = raw  # fallback
-            # print('5')
+            val = raw  # fallback: unkown field type, keep raw bytes
         parsed_header[name] = val
 
     metadata["dimensions"] = (
@@ -126,6 +122,7 @@ def _parseMCCDHeader(header):
 
     metadata["wavelength"] = float(parsed_header["source_wavelength"]) / 1e5
 
+    # pattern to match the acquisition timestamp
     pattern = r"(\d{4})(\d{4})(\d{4})\.(\d{2}).(\d{9})"
     mmdd, hhmm, yyyy, ss, ns = re.match(
         pattern, parsed_header["acquire_timestamp"]
@@ -138,6 +135,7 @@ def _writeMCCDHeader(marccd):
     """
     Write the MCCD header using the experimental metadata from the MarCCD
     object.
+
 
     Parameters
     ----------
@@ -221,7 +219,7 @@ class FrameHeader(ctypes.LittleEndianStructure):
 
     _pack_ = 1
     _fields_ = [
-        # --- File/header format parameters (256 bytes) ---
+        # File/header format parameters (256 bytes)
         ("header_type", ctypes.c_uint32),
         ("header_name", ctypes.c_char * 16),
         ("header_major_version", ctypes.c_uint32),
@@ -279,7 +277,7 @@ class FrameHeader(ctypes.LittleEndianStructure):
         ("postscan_nslow", ctypes.c_uint32),
         ("prepost_trimmed", ctypes.c_uint32),
         ("reserve1", ctypes.c_char * ((64 - 55) * 4 - 16)),
-        # --- Data statistics (128 bytes) ---
+        # Data statistics (128 bytes)
         ("total_counts", ctypes.c_uint32 * 2),
         ("special_counts1", ctypes.c_uint32 * 2),
         ("special_counts2", ctypes.c_uint32 * 2),
@@ -292,12 +290,12 @@ class FrameHeader(ctypes.LittleEndianStructure):
         ("stats_uptodate", ctypes.c_uint32),
         ("pixel_noise", ctypes.c_uint32 * 9),
         ("reserve2", ctypes.c_char * ((32 - 13 - 9) * 4)),
-        # --- Sample Changer info (256 bytes) ---
+        # Sample Changer info (256 bytes)
         ("barcode", ctypes.c_char * 16),
         ("barcode_angle", ctypes.c_uint32),
         ("barcode_status", ctypes.c_uint32),
         ("reserve2a", ctypes.c_char * ((64 - 6) * 4)),
-        # --- Goniostat parameters (128 bytes) ---
+        # Goniostat parameters (128 bytes)
         ("xtal_to_detector", ctypes.c_int32),
         ("beam_x", ctypes.c_int32),
         ("beam_y", ctypes.c_int32),
@@ -328,7 +326,7 @@ class FrameHeader(ctypes.LittleEndianStructure):
         ("detector_rotz", ctypes.c_int32),
         ("total_dose", ctypes.c_int32),
         ("reserve3", ctypes.c_char * ((32 - 29) * 4)),
-        # --- Detector parameters (128 bytes) ---
+        # Detector parameters (128 bytes)
         ("detector_type", ctypes.c_int32),
         ("pixelsize_x", ctypes.c_int32),
         ("pixelsize_y", ctypes.c_int32),
@@ -337,7 +335,7 @@ class FrameHeader(ctypes.LittleEndianStructure):
         ("measured_bias", ctypes.c_int32 * 9),
         ("measured_temperature", ctypes.c_int32 * 9),
         ("measured_pressure", ctypes.c_int32 * 9),
-        # --- X-ray source parameters (64 bytes) ---
+        # X-ray source parameters (64 bytes)
         ("source_type", ctypes.c_int32),
         ("source_dx", ctypes.c_int32),
         ("source_dy", ctypes.c_int32),
@@ -351,7 +349,7 @@ class FrameHeader(ctypes.LittleEndianStructure):
         ("source_intensity_0", ctypes.c_int32),
         ("source_intensity_1", ctypes.c_int32),
         ("reserve_source", ctypes.c_char * (2 * 4)),
-        # --- X-ray optics parameters (128 bytes) ---
+        # X-ray optics parameters (128 bytes)
         ("optics_type", ctypes.c_int32),
         ("optics_dx", ctypes.c_int32),
         ("optics_dy", ctypes.c_int32),
@@ -364,7 +362,7 @@ class FrameHeader(ctypes.LittleEndianStructure):
         ("optics_polarization_y", ctypes.c_int32),
         ("reserve_optics", ctypes.c_char * (4 * 4)),
         ("reserve5", ctypes.c_char * ((32 - 28) * 4)),
-        # --- File parameters (1024 bytes) ---
+        # File parameters (1024 bytes)
         ("filetitle", ctypes.c_char * 128),
         ("filepath", ctypes.c_char * 128),
         ("filename", ctypes.c_char * 64),
@@ -373,8 +371,8 @@ class FrameHeader(ctypes.LittleEndianStructure):
         ("save_timestamp", ctypes.c_char * 32),
         ("file_comment", ctypes.c_char * 512),
         ("reserve6", ctypes.c_char * (1024 - (128 + 128 + 64 + (3 * 32) + 512))),
-        # --- Dataset parameters (512 bytes) ---
+        # Dataset parameters (512 bytes)
         ("dataset_comment", ctypes.c_char * 512),
-        # --- User-definable data (512 bytes) ---
+        # User-definable data (512 bytes)
         ("user_data", ctypes.c_char * 512),
     ]

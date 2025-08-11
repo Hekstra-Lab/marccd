@@ -230,7 +230,7 @@ class MarCCD:
     @property
     def timestamp(self):
         """
-        Pixel size in microns
+        Timestamp of image acquisition
 
         Returns
         -------
@@ -242,7 +242,7 @@ class MarCCD:
 
     @timestamp.setter
     def timestamp(self, value):
-        """Sets the pixel size to provided value"""
+        """Sets the timestamp to the provided value"""
         self.__timestamp = value
 
     @property
