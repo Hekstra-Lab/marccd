@@ -21,9 +21,10 @@ class TestIOMCCD(unittest.TestCase):
             mccd.read("fakefile.mccd")
 
         # File does exist
-        image, metadata, mccdheader = mccd.read(self.testImage)
+        image, parsed_header, metadata, mccdheader = mccd.read(self.testImage)
         self.assertIsInstance(image, np.ndarray)
         self.assertIsInstance(metadata, dict)
+        self.assertIsInstance(parsed_header, dict)
         self.assertFalse("dimensions" in metadata)
         self.assertEqual(3072, len(mccdheader))
 
