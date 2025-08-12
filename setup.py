@@ -10,7 +10,7 @@ setup(
     packages=find_packages(),
     description='Read, write, and manipulate images that use the MarCCD format',
     install_requires=[
-        "numpy >= 1.6",
+        "numpy >= 1.6, < 2.0",
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-cov'],
